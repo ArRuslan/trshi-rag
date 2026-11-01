@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, cast, TypedDict
 
 import docutils.nodes
 import sphinx.addnodes
@@ -7,10 +7,19 @@ from docutils.nodes import Node
 from sphinx.application import Sphinx
 
 
+class RagPart(TypedDict):
+    document: str
+    section: str
+    position: int
+    span_start: int
+    span_end: int
+    text: str
+
+
 class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def __init__(self, document: docutils.nodes.document) -> None:
         super().__init__(document)
-        self.symbols: list[list[str]] = []
+        self.parts: list[tuple[RagPart, list[str]]] = []
         self._in_desc = False
         self._in_content = False
         self._in_signature = False
@@ -18,7 +27,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def visit_Text(self, node: docutils.nodes.Text) -> Any:
         if not self._in_content:
             return
-        self.symbols[-1].append(node.replace("\n", ""))
+        self.parts[-1][1].append(node.replace("\n", ""))
 
     def default_visit(self, node: docutils.nodes.Node) -> None:
         node = cast(docutils.nodes.Element, node)
@@ -27,37 +36,49 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         if cls is sphinx.addnodes.desc:
             self._in_desc = True
 
-            self.symbols.append([
-                f"Source: {self.document['source'].split('Doc/')[1]} ",
-            ])
+            text_parts = []
+            part_info = {
+                "document": self.document["source"].split("Doc/")[1],
+                "section": "",
+                "position": len(self.parts),
+                "span_start": 0,
+                "span_end": 0,
+                "text": "",
+            }
+
+            self.parts.append((part_info, text_parts))
 
             signatures = [element for element in node.children if isinstance(element, sphinx.addnodes.desc_signature)]
 
             if signatures:
-                self.symbols[-1].append(node["desctype"].title())
-                self.symbols[-1].append(" ")
-                self.symbols[-1].append(signatures[0]["module"])
-                self.symbols[-1].append(".")
-                self.symbols[-1].append(signatures[0]["fullname"])
+                part_info["section"] = signatures[0].astext()
 
-                self.symbols[-1].append(" Signatures: " if len(signatures) > 1 else " Signature: ")
+                text_parts.append(node["desctype"].title())
+                text_parts.append(" ")
+                text_parts.append(signatures[0]["module"])
+                text_parts.append(".")
+                text_parts.append(signatures[0]["fullname"])
+
+                text_parts.append(" Signatures: " if len(signatures) > 1 else " Signature: ")
 
                 for signature in signatures:
-                    self.symbols[-1].append(signature.astext())
-                    self.symbols[-1].append(" ")
+                    text_parts.append(signature.astext())
+                    text_parts.append(" ")
 
         elif self._in_desc and cls is sphinx.addnodes.desc_signature:
             raise docutils.nodes.SkipNode
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = True
 
-        # print(type(node))
-
     def default_departure(self, node: Node) -> None:
         cls = type(node)
+
         if cls is sphinx.addnodes.desc:
             self._in_desc = False
             self._in_content = False
+            part_info, text_parts = self.parts[-1]
+            part_info["text"] = "".join(text_parts)
+            text_parts.clear()
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = False
 
@@ -69,10 +90,10 @@ def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -
     print(doc.pformat())
 
     visitor = IdkVisitor(doc)
-    doc.walk(visitor)
+    doc.walkabout(visitor)
 
-    for desc in visitor.symbols:
-        print("".join(desc))
+    for part in visitor.parts:
+        print(part)
 
 
 def main() -> None:
