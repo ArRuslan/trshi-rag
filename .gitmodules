@@ -1,0 +1,3 @@
+[submodule "data/cpython"]
+	path = data/cpython
+	url = https://github.com/python/cpython
