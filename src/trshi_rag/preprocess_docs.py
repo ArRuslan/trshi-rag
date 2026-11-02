@@ -41,8 +41,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         self._in_glossary = False
         self._was_in_section = False
         self._in_paragraph = False
-        self._class_node: sphinx.addnodes.desc | None = None
-        self._class_name: str | None = None
+        self._class_stack: list[tuple[sphinx.addnodes.desc, str]] = []
 
     def visit_Text(self, node: docutils.nodes.Text) -> Any:
         if not self._in_content and not self._in_paragraph:
@@ -198,15 +197,13 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                         part_info["module"] = mod
 
                     if desctype == "class":
-                        assert self._class_node is None
-                        self._class_node = cast(sphinx.addnodes.desc, node)
-                        self._class_name = name
+                        self._class_stack.append((cast(sphinx.addnodes.desc, node), name))
                     else:
-                        if self._class_name is not None and name.startswith(self._class_name):
-                            name = name[len(self._class_name) + 1:]
+                        if self._class_stack and name.startswith(self._class_stack[-1][1]):
+                            name = name[len(self._class_stack[-1][1]) + 1:]
                         part_info["attribute" if desctype == "attribute" else "function"] = name
 
-                    part_info["class_"] = self._class_name or ""
+                    part_info["class_"] = self._class_stack[-1][1] if self._class_stack else ""
                 else:
                     ids = signatures[0]["ids"]
                     if ids:
@@ -243,9 +240,8 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 self._was_in_section = False
                 if self._in_section and isinstance(node.parent, docutils.nodes.section):
                     self.visit_section(node.parent)
-            if node == self._class_node:
-                self._class_node = None
-                self._class_name = None
+            if self._class_stack and node == self._class_stack[-1][0]:
+                self._class_stack.pop()
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = False
         elif cls is sphinx.addnodes.glossary:
