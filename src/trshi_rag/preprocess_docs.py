@@ -11,6 +11,10 @@ class RagPart(TypedDict):
     document: str
     section: str
     signatures: list[str]
+    module: str
+    class_: str
+    function: str
+    attribute: str
     text: str
 
 
@@ -23,6 +27,8 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         self._in_section = False
         self._was_in_section = False
         self._in_paragraph = False
+        self._class_node: sphinx.addnodes.desc | None = None
+        self._class_name: str | None = None
 
     def visit_Text(self, node: docutils.nodes.Text) -> Any:
         if not self._in_content and not self._in_paragraph:
@@ -49,6 +55,10 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             "document": self.document["source"].split("Doc/")[1],
             "section": titles[0].astext(),
             "signatures": [],
+            "module": "",
+            "class_": "",
+            "function": "",
+            "attribute": "",
             "text": "",
         }
 
@@ -86,6 +96,10 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 "document": self.document["source"].split("Doc/")[1],
                 "section": "",
                 "signatures": [],
+                "module": "",
+                "class_": "",
+                "function": "",
+                "attribute": "",
                 "text": "",
             }
 
@@ -96,11 +110,21 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             if signatures:
                 part_info["section"] = signatures[0].astext()
 
-                text_parts.append(node["desctype"].title())
-                text_parts.append(" ")
-                text_parts.append(signatures[0]["module"])
-                text_parts.append(".")
-                text_parts.append(signatures[0]["fullname"])
+                desctype = node["desctype"]
+                name = f"{signatures[0]['module']}.{signatures[0]['fullname']}"
+
+                part_info["module"] = signatures[0]['module']
+
+                if desctype == "class":
+                    assert self._class_node is None
+                    self._class_node = cast(sphinx.addnodes.desc, node)
+                    self._class_name = name
+                else:
+                    if self._class_name is not None and name.startswith(self._class_name):
+                        name = name[len(self._class_name) + 1:]
+                    part_info["attribute" if desctype == "attribute" else "function"] = name
+
+                part_info["class_"] = self._class_name or ""
 
                 for signature in signatures:
                     part_info["signatures"].append(signature.astext())
@@ -109,6 +133,8 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             raise docutils.nodes.SkipNode
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = True
+        elif cls is sphinx.addnodes.seealso:
+            raise docutils.nodes.SkipNode
 
     def _join_text(self) -> None:
         part_info, text_parts = self.parts[-1]
@@ -128,12 +154,15 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 self._was_in_section = False
                 if self._in_section and isinstance(node.parent, docutils.nodes.section):
                     self.visit_section(node.parent)
+            if node == self._class_node:
+                self._class_node = None
+                self._class_name = None
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = False
 
 
 def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -> None:
-    if name != "library/bisect":
+    if name != "library/array":
         return
 
     print(doc.pformat())
