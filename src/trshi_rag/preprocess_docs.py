@@ -25,6 +25,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         self._in_desc = False
         self._in_content = False
         self._in_section = False
+        self._in_glossary = False
         self._was_in_section = False
         self._in_paragraph = False
         self._class_node: sphinx.addnodes.desc | None = None
@@ -78,11 +79,41 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             return
         self._in_paragraph = False
 
+    def visit_definition_list_item(self, node: docutils.nodes.definition_list_item) -> Any:
+        if not self._in_glossary:
+            return
+
+        text_parts = []
+        part_info: RagPart = {
+            "document": self.document["source"].split("Doc/")[1],
+            "section": "",
+            "signatures": [],
+            "module": "",
+            "class_": "",
+            "function": "",
+            "attribute": "",
+            "text": "",
+        }
+
+        self.parts.append((part_info, text_parts))
+
+        terms = [element for element in node.children if isinstance(element, docutils.nodes.term)]
+        part_info["section"] = f"Glossary - \"{terms[0].astext()}\""
+
+        text_parts.append(f"Definition of {', '.join(term.astext() for term in terms)}: ")
+
+    def depart_definition_list_item(self, node: docutils.nodes.definition_list_item) -> Any:
+        if not self._in_glossary:
+            return
+        self._join_text()
+
     def default_visit(self, node: docutils.nodes.Node) -> None:
         node = cast(docutils.nodes.Element, node)
 
         cls = type(node)
         if cls is sphinx.addnodes.desc:
+            assert not self._in_glossary
+
             self._was_in_section = self._in_section
             self._in_section = False
 
@@ -135,6 +166,9 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             self._in_content = True
         elif cls is sphinx.addnodes.seealso:
             raise docutils.nodes.SkipNode
+        elif cls is sphinx.addnodes.glossary:
+            assert not self._in_desc
+            self._in_glossary = True
 
     def _join_text(self) -> None:
         part_info, text_parts = self.parts[-1]
@@ -159,10 +193,12 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 self._class_name = None
         elif self._in_desc and cls is sphinx.addnodes.desc_content:
             self._in_content = False
+        elif cls is sphinx.addnodes.glossary:
+            self._in_glossary = False
 
 
 def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -> None:
-    if name != "library/array":
+    if name != "glossary":
         return
 
     print(doc.pformat())
