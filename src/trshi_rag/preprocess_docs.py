@@ -107,6 +107,32 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             return
         self._join_text()
 
+    def visit_table(self, node: docutils.nodes.table) -> Any:
+        if not self._in_content and not self._in_section:
+            raise docutils.nodes.SkipNode
+
+        head = list(node.findall(docutils.nodes.thead))[0]
+        body = list(node.findall(docutils.nodes.tbody))[0]
+
+        cols = [entry.astext() for entry in next(head.findall(docutils.nodes.row)).findall(docutils.nodes.entry)]
+
+        _, text_parts = self.parts[-1]
+
+        for row in body.findall(docutils.nodes.row):
+            wrote = False
+            for col_name, col in zip(cols, row.findall(docutils.nodes.entry), strict=True):
+                value = col.astext().strip()
+                if not value:
+                    continue
+                if wrote:
+                    text_parts.append("; ")
+                wrote = True
+                text_parts.append(f"{col_name}: {value}")
+            if wrote:
+                text_parts.append(f"\n")
+
+        raise docutils.nodes.SkipNode
+
     def default_visit(self, node: docutils.nodes.Node) -> None:
         node = cast(docutils.nodes.Element, node)
 
@@ -198,7 +224,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
 
 
 def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -> None:
-    if name != "glossary":
+    if name != "library/array":
         return
 
     print(doc.pformat())
