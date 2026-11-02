@@ -1,5 +1,6 @@
+import json
 from pathlib import Path
-from typing import Any, cast, TypedDict
+from typing import Any, cast, TypedDict, Iterable, TypeVar
 
 import docutils.nodes
 import sphinx.addnodes
@@ -15,7 +16,19 @@ class RagPart(TypedDict):
     class_: str
     function: str
     attribute: str
+    other: str
     text: str
+
+
+T = TypeVar("T", bound=Node)
+
+
+def find_first_node(node: Node, child_cls: type[T]) -> Iterable[T]:
+    for child in node.children:
+        if isinstance(child, child_cls):
+            yield child
+        else:
+            yield from find_first_node(child, child_cls)
 
 
 class IdkVisitor(docutils.nodes.GenericNodeVisitor):
@@ -60,6 +73,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             "class_": "",
             "function": "",
             "attribute": "",
+            "other": "",
             "text": "",
         }
 
@@ -92,6 +106,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             "class_": "",
             "function": "",
             "attribute": "",
+            "other": "",
             "text": "",
         }
 
@@ -111,16 +126,24 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         if not self._in_content and not self._in_section:
             raise docutils.nodes.SkipNode
 
-        head = list(node.findall(docutils.nodes.thead))[0]
-        body = list(node.findall(docutils.nodes.tbody))[0]
+        heads = list(node.findall(docutils.nodes.thead))
+        bodies = list(node.findall(docutils.nodes.tbody))
+
+        if len(heads) != 1 or len(bodies) != 1:
+            raise docutils.nodes.SkipNode
+
+        head = heads[0]
+        body = bodies[0]
 
         cols = [entry.astext() for entry in next(head.findall(docutils.nodes.row)).findall(docutils.nodes.entry)]
+        if len(cols) <= 1:
+            raise docutils.nodes.SkipNode
 
         _, text_parts = self.parts[-1]
 
-        for row in body.findall(docutils.nodes.row):
+        for row in find_first_node(body, docutils.nodes.row):
             wrote = False
-            for col_name, col in zip(cols, row.findall(docutils.nodes.entry), strict=True):
+            for col_name, col in zip(cols, find_first_node(row, docutils.nodes.entry)):
                 value = col.astext().strip()
                 if not value:
                     continue
@@ -157,6 +180,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 "class_": "",
                 "function": "",
                 "attribute": "",
+                "other": "",
                 "text": "",
             }
 
@@ -167,21 +191,26 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             if signatures:
                 part_info["section"] = signatures[0].astext()
 
-                desctype = node["desctype"]
-                name = f"{signatures[0]['module']}.{signatures[0]['fullname']}"
+                if name := signatures[0].get("fullname"):
+                    desctype = node["desctype"]
+                    if mod := signatures[0].get("module"):
+                        name = f"{mod}.{name}"
+                        part_info["module"] = mod
 
-                part_info["module"] = signatures[0]['module']
+                    if desctype == "class":
+                        assert self._class_node is None
+                        self._class_node = cast(sphinx.addnodes.desc, node)
+                        self._class_name = name
+                    else:
+                        if self._class_name is not None and name.startswith(self._class_name):
+                            name = name[len(self._class_name) + 1:]
+                        part_info["attribute" if desctype == "attribute" else "function"] = name
 
-                if desctype == "class":
-                    assert self._class_node is None
-                    self._class_node = cast(sphinx.addnodes.desc, node)
-                    self._class_name = name
+                    part_info["class_"] = self._class_name or ""
                 else:
-                    if self._class_name is not None and name.startswith(self._class_name):
-                        name = name[len(self._class_name) + 1:]
-                    part_info["attribute" if desctype == "attribute" else "function"] = name
-
-                part_info["class_"] = self._class_name or ""
+                    ids = signatures[0]["ids"]
+                    if ids:
+                        part_info["other"] = ids[0]
 
                 for signature in signatures:
                     part_info["signatures"].append(signature.astext())
@@ -222,18 +251,31 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         elif cls is sphinx.addnodes.glossary:
             self._in_glossary = False
 
+    def unknown_visit(self, node: Node) -> Any:
+        if node.__class__.__name__ == "snippet_string_node":
+            return self.visit_inline(cast(docutils.nodes.inline, node))
+
+        print(f"unknown node: {node}")
+
+    def unknown_departure(self, node: Node) -> Any:
+        ...
+
 
 def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -> None:
-    if name != "library/array":
-        return
+    out_dir = Path(f"data/parts")
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    print(doc.pformat())
+    # print(f"Processing {name}")
 
     visitor = IdkVisitor(doc)
-    doc.walkabout(visitor)
+    try:
+        doc.walkabout(visitor)
+    except Exception as e:
+        print(f"error during {name} processing: {e}")
+        return
 
-    for part in visitor.parts:
-        print(part)
+    with open(out_dir / name.replace("/", "_"), "w") as f:
+        json.dump(visitor.parts, f)
 
 
 def main() -> None:
