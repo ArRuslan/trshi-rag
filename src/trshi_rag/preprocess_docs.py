@@ -8,15 +8,20 @@ from docutils.nodes import Node
 from sphinx.application import Sphinx
 
 
-class RagPart(TypedDict):
-    document: str
-    section: str
+class RagPartSymbol(TypedDict):
+    type: str
     signatures: list[str]
     module: str
     class_: str
     function: str
     attribute: str
     other: str
+
+
+class RagPart(TypedDict):
+    document: str
+    section: str
+    symbol: RagPartSymbol | None
     text: str
 
 
@@ -69,12 +74,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         part_info: RagPart = {
             "document": self.document["source"].split("Doc/")[1],
             "section": titles[0].astext(),
-            "signatures": [],
-            "module": "",
-            "class_": "",
-            "function": "",
-            "attribute": "",
-            "other": "",
+            "symbol": None,
             "text": "",
         }
 
@@ -107,12 +107,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         part_info: RagPart = {
             "document": self.document["source"].split("Doc/")[1],
             "section": "",
-            "signatures": [],
-            "module": "",
-            "class_": "",
-            "function": "",
-            "attribute": "",
-            "other": "",
+            "symbol": None,
             "text": "",
         }
 
@@ -177,16 +172,22 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
 
             self._in_desc = True
 
+            desctype = node["desctype"]
+
             text_parts = []
-            part_info: RagPart = {
-                "document": self.document["source"].split("Doc/")[1],
-                "section": "",
+            symbol_info: RagPartSymbol = {
+                "type": desctype,
                 "signatures": [],
                 "module": "",
                 "class_": "",
                 "function": "",
                 "attribute": "",
                 "other": "",
+            }
+            part_info: RagPart = {
+                "document": self.document["source"].split("Doc/")[1],
+                "section": "",
+                "symbol": symbol_info,
                 "text": "",
             }
 
@@ -198,26 +199,25 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
                 part_info["section"] = signatures[0].astext()
 
                 if name := signatures[0].get("fullname"):
-                    desctype = node["desctype"]
                     if mod := signatures[0].get("module"):
                         name = f"{mod}.{name}"
-                        part_info["module"] = mod
+                        symbol_info["module"] = mod
 
                     if desctype == "class":
                         self._class_stack.append((cast(sphinx.addnodes.desc, node), name))
                     else:
                         if self._class_stack and name.startswith(self._class_stack[-1][1]):
                             name = name[len(self._class_stack[-1][1]) + 1:]
-                        part_info["attribute" if desctype == "attribute" else "function"] = name
+                        symbol_info["attribute" if desctype == "attribute" else "function"] = name
 
-                    part_info["class_"] = self._class_stack[-1][1] if self._class_stack else ""
+                    symbol_info["class_"] = self._class_stack[-1][1] if self._class_stack else ""
                 else:
                     ids = signatures[0]["ids"]
                     if ids:
-                        part_info["other"] = ids[0]
+                        symbol_info["other"] = ids[0]
 
                 for signature in signatures:
-                    part_info["signatures"].append(signature.astext())
+                    symbol_info["signatures"].append(signature.astext())
 
         elif self._in_desc and cls is sphinx.addnodes.desc_signature:
             raise docutils.nodes.SkipNode
