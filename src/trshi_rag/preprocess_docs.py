@@ -51,15 +51,17 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def visit_literal_block(self, node: docutils.nodes.literal_block) -> Any:
         if not self._in_content and not self._in_section:
             return
-        assert len(node.children) == 1
-        assert isinstance(node.children[0], docutils.nodes.Text)
         self.parts[-1][1].append("\n")
-        self.parts[-1][1].append(cast(docutils.nodes.Text, node.children[0]))
+        self.parts[-1][1].append(node.astext())
         raise docutils.nodes.SkipNode
 
     def visit_section(self, node: docutils.nodes.section) -> Any:
         assert not self._in_desc
+
+        self._was_in_section = self._in_section
         self._in_section = True
+        if self._was_in_section:
+            self._join_text()
 
         titles = list(node.findall(docutils.nodes.title))
 
@@ -81,6 +83,11 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def depart_section(self, node: docutils.nodes.section) -> Any:
         self._in_section = False
         self._join_text()
+        if self._was_in_section:
+            self._in_section = True
+            self._was_in_section = False
+            if isinstance(node.parent, docutils.nodes.section):
+                self.visit_section(node.parent)
 
     def visit_paragraph(self, node: docutils.nodes.paragraph) -> Any:
         if not self._in_section:
@@ -165,7 +172,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
             self._was_in_section = self._in_section
             self._in_section = False
 
-            if self._was_in_section:
+            if self._was_in_section or self._in_desc:
                 self._join_text()
 
             self._in_desc = True
@@ -270,8 +277,9 @@ def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -
         print(f"error during {name} processing: {e}")
         return
 
-    with open(out_dir / name.replace("/", "_"), "w") as f:
-        json.dump(visitor.parts, f)
+    with open(out_dir / (name.replace("/", "_") + ".json"), "w") as f:
+        parts = [part for part, _ in visitor.parts if part["text"]]
+        json.dump(parts, f, indent=2)
 
 
 def main() -> None:
