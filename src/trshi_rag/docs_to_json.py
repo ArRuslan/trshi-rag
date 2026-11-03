@@ -265,7 +265,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
 
 
 def _on_doctree_resolved(app: Sphinx, doc: docutils.nodes.document, name: str) -> None:
-    out_dir = Path(f"data/parts")
+    out_dir = Path(f"data/parts_raw")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # print(f"Processing {name}")
