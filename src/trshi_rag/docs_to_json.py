@@ -51,7 +51,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def visit_Text(self, node: docutils.nodes.Text) -> Any:
         if not self._in_content and not self._in_paragraph:
             return
-        self.parts[-1][1].append(node.replace("\n", ""))
+        self.parts[-1][1].append(node.replace("\n", " "))
 
     def visit_literal_block(self, node: docutils.nodes.literal_block) -> Any:
         if not self._in_content and not self._in_section:
