@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -13,9 +14,10 @@ from transformers import AutoTokenizer
 from trshi_rag.docs_to_json import RagPart, RagPartSymbol
 
 DEFAULT_MODEL = "google/embeddinggemma-300m"
-SOFT_LIMIT = 768
+SOFT_LIMIT = 512
 HARD_LIMIT = 1024
 OVERLAP_RATIO = 0.10
+GLOBAL_ID_LENGTH = 24
 
 SENT_BREAK = re.compile(r"(?<=[.!?])\s+")
 
@@ -43,6 +45,7 @@ class RagPartProcessed(TypedDict):
     tokens: int
     part_index: int
     parts_total: int
+    global_id: str
 
 
 class ArgumentsNamespace(argparse.Namespace):
@@ -52,6 +55,17 @@ class ArgumentsNamespace(argparse.Namespace):
     soft: int
     hard: int
     overlap: float
+
+
+def symbol_key(symbol: RagPartSymbol | None) -> str:
+    if symbol is None:
+        return ""
+    return json.dumps(symbol, sort_keys=True, ensure_ascii=True, separators=(",", ":"))
+
+
+def global_id(document: str, section: str, symbol: RagPartSymbol | None, part_index: int, text: str) -> str:
+    payload = "\x00".join((document, section, symbol_key(symbol), str(part_index), text)).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:GLOBAL_ID_LENGTH]
 
 
 class TokenCounter:
@@ -263,8 +277,8 @@ def process_part(counter: TokenCounter, part: RagPart, soft: int, hard: int, rat
 
     out: list[RagPartProcessed] = []
     total = len(bags)
-    for bi, bag in enumerate(bags):
-        frag = build_fragment(bag, header, counter, bi, total)
+    for idx, bag in enumerate(bags):
+        frag = build_fragment(bag, header, counter, idx, total)
         if frag.tokens > hard:
             raise ValueError(
                 f"fragment exceeds hard limit: {frag.tokens} > {hard} ({part['document']} / {part['section'][:40]})"
@@ -276,8 +290,9 @@ def process_part(counter: TokenCounter, part: RagPart, soft: int, hard: int, rat
             "symbol": part["symbol"],
             "text": frag.body,
             "tokens": frag.tokens,
-            "part_index": bi,
+            "part_index": idx,
             "parts_total": total,
+            "global_id": global_id(part["document"], part["section"], part["symbol"], idx, frag.body),
         }
         out.append(part)
 
