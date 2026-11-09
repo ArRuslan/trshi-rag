@@ -1,0 +1,311 @@
+[
+  {
+    "id": "q01",
+    "question": "How do I batch items from an iterable into fixed-size groups?",
+    "gold_document": "library/itertools.rst",
+    "gold_section": "itertools.batched(iterable, n, *, strict=False)",
+    "relevant": [
+      "9273fa20907e477563cfc480"
+    ]
+  },
+  {
+    "id": "q02",
+    "question": "How do I set a default value in a dictionary when the key is missing?",
+    "gold_document": "builtins/stdtypes.rst",
+    "gold_section": "setdefault(key, default=None, /)",
+    "relevant": [
+      "02bb97d34d91a9c389304d6f"
+    ]
+  },
+  {
+    "id": "q03",
+    "question": "How does functools.lru_cache cache function results?",
+    "gold_document": "library/functools.rst",
+    "gold_section": "@functools.lru_cache(user_function)",
+    "relevant": [
+      "56cddd2cdbe37d575f9c4a9d",
+      "6f5d28c685d7841ff5136bfb",
+      "83a4ff8d3ff37e0be3e604c8"
+    ]
+  },
+  {
+    "id": "q04",
+    "question": "How can I read a whole text file into a string with pathlib?",
+    "gold_document": "library/pathlib.rst",
+    "gold_section": "Path.read_text(encoding=None, errors=None, newline=None)",
+    "relevant": [
+      "bff39e999cfa31585f5e94e0"
+    ]
+  },
+  {
+    "id": "q05",
+    "question": "How can I run coroutines concurrently with asyncio?",
+    "gold_document": "library/asyncio-task.rst",
+    "gold_section": "awaitable asyncio.gather(*aws, return_exceptions=False)",
+    "relevant": [
+      "1828b92051e683ea57e97541",
+      "8008cc1792d49daad127bd8b"
+    ]
+  },
+  {
+    "id": "q06",
+    "question": "How do I serialize a Python object to a JSON string?",
+    "gold_document": "library/json.rst",
+    "gold_section": "json.dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, separators=None, default=None, sort_keys=False, **kw)",
+    "relevant": [
+      "5a4b2e1c0dc3405053c3fe4d"
+    ]
+  },
+  {
+    "id": "q07",
+    "question": "How do I compile a regular expression with case-insensitive matching?",
+    "gold_document": "library/re.rst",
+    "gold_section": "re.I",
+    "relevant": [
+      "239235090ae9b47bcc2a786d"
+    ]
+  },
+  {
+    "id": "q08",
+    "question": "How can I find the n largest elements of an iterable?",
+    "gold_document": "library/heapq.rst",
+    "gold_section": "heapq.nlargest(n, iterable, key=None)",
+    "relevant": [
+      "e2ee35db9c55ed00bb95ad50"
+    ]
+  },
+  {
+    "id": "q09",
+    "question": "How do I count occurrences of elements in a list?",
+    "gold_document": "library/collections.rst",
+    "gold_section": "Counter objects",
+    "relevant": [
+      "1214834e90ecc4e4b41f7222"
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "How do I create an immutable dataclass?",
+    "gold_document": "library/dataclasses.rst",
+    "gold_section": "@dataclasses.dataclass(*, init=True, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False, match_args=True, kw_only=False, slots=False, weakref_slot=False)",
+    "relevant": [
+      "4ef03affc575336d3b51fc15",
+      "57b7fcfe4df1388ddb7d5ba5",
+      "8fc1982851d2c9023c76b3f4",
+      "ba18b316afe9e0ed5625171a",
+      "d3d524c551361d1e74748140"
+    ]
+  },
+  {
+    "id": "q11",
+    "question": "What is a Protocol in the typing?",
+    "gold_document": "library/typing.rst",
+    "gold_section": "class typing.Protocol(Generic)",
+    "relevant": [
+      "6e09cb20f4a9b519aaca7827"
+    ]
+  },
+  {
+    "id": "q12",
+    "question": "How do I mock a function in unit tests?",
+    "gold_document": "library/unittest.mock.rst",
+    "gold_section": "unittest.mock.patch(target, new=DEFAULT, spec=None, create=False, spec_set=None, autospec=None, new_callable=None, **kwargs)",
+    "relevant": [
+      "52dc87e0bdf044a5392b9e08",
+      "ea2381c73584231ae4b13e7d"
+    ]
+  },
+  {
+    "id": "q13",
+    "question": "How can I read CSV rows as dictionaries?",
+    "gold_document": "library/csv.rst",
+    "gold_section": "class csv.DictReader(f, fieldnames=None, restkey=None, restval=None, dialect='excel', *args, **kwds)",
+    "relevant": [
+      "8041490854d9180c0916667a"
+    ]
+  },
+  {
+    "id": "q14",
+    "question": "How do I configure logging to write to a file?",
+    "gold_document": "library/logging.rst",
+    "gold_section": "logging.basicConfig(**kwargs)",
+    "relevant": [
+      "2807fad839fb1a0c44f98e6e",
+      "bcdf3420aa03b58b292019a3"
+    ]
+  },
+  {
+    "id": "q15",
+    "question": "How do I use a process pool for parallel work?",
+    "gold_document": "library/multiprocessing.rst",
+    "gold_section": "class multiprocessing.pool.Pool([processes, [initializer, [initargs, [maxtasksperchild, [context]]]]])",
+    "relevant": [
+      "134d8cc3a68f25ecec57bab2",
+      "1ec55ecf1e7820c03522abd0"
+    ]
+  },
+  {
+    "id": "q16",
+    "question": "How do I compute the SHA-256 hash of bytes?",
+    "gold_document": "library/hashlib.rst",
+    "gold_section": "Simple hashing",
+    "relevant": [
+      "c74d25ba285e2eca90c26118"
+    ]
+  },
+  {
+    "id": "q17",
+    "question": "How can I encode bytes to Base64?",
+    "gold_document": "library/base64.rst",
+    "gold_section": "base64.b64encode(s, altchars=None, *, padded=True, wrapcol=0)",
+    "relevant": [
+      "7f7103a530bb74b167878ed8"
+    ]
+  },
+  {
+    "id": "q18",
+    "question": "How do I parse a date string into a datetime object?",
+    "gold_document": "library/datetime.rst",
+    "gold_section": "classmethod date.strptime(date_string, format)",
+    "relevant": [
+      "98e26d17aa52f2f024ac57e2"
+    ]
+  },
+  {
+    "id": "q19",
+    "question": "How can I make random numbers reproducible?",
+    "gold_document": "library/random.rst",
+    "gold_section": "random.seed(a=None, version=2)",
+    "relevant": [
+      "4690491973d20310bf68a8d9"
+    ]
+  },
+  {
+    "id": "q20",
+    "question": "How do I compute the median of a sequence of numbers?",
+    "gold_document": "library/statistics.rst",
+    "gold_section": "statistics.median(data)",
+    "relevant": [
+      "5a681a307a2cec32ab64bd52"
+    ]
+  },
+  {
+    "id": "q21",
+    "question": "How do I define an enumeration with integer values?",
+    "gold_document": "library/enum.rst",
+    "gold_section": "class enum.IntEnum",
+    "relevant": [
+      "53537c3696455e39de314d84"
+    ]
+  },
+  {
+    "id": "q22",
+    "question": "How can I temporarily ignore an exception?",
+    "gold_document": "library/contextlib.rst",
+    "gold_section": "contextlib.suppress(*exceptions)",
+    "relevant": [
+      "8d4690104cedb80387a9f1ff"
+    ]
+  },
+  {
+    "id": "q23",
+    "question": "How do I use an in-memory text stream?",
+    "gold_document": "library/io.rst",
+    "gold_section": "class io.StringIO(initial_value='', newline='\\n')",
+    "relevant": [
+      "87a80d5059f34da0e73589e5"
+    ]
+  },
+  {
+    "id": "q24",
+    "question": "How do I read a gzip-compressed file?",
+    "gold_document": "library/gzip.rst",
+    "gold_section": "gzip.open(filename, mode='rb', compresslevel=6, encoding=None, errors=None, newline=None)",
+    "relevant": [
+      "33680eaa521c7931bb1aa40c"
+    ]
+  },
+  {
+    "id": "q25",
+    "question": "How can I list the files inside a zip archive?",
+    "gold_document": "library/zipfile.rst",
+    "gold_section": "ZipFile.namelist()",
+    "relevant": [
+      "757337a413c867fe76b5ff23"
+    ]
+  },
+  {
+    "id": "q26",
+    "question": "How can I find files recursively with glob?",
+    "gold_document": "library/glob.rst",
+    "gold_section": "glob.glob(pathname, *, root_dir=None, dir_fd=None, recursive=False, include_hidden=False)",
+    "relevant": [
+      "73178d5590d61f3c6b362836"
+    ]
+  },
+  {
+    "id": "q27",
+    "question": "How do I pack values into a binary struct?",
+    "gold_document": "library/struct.rst",
+    "gold_section": "pack(v1, v2, ...)",
+    "relevant": [
+      "48065cee3201a8fa9b967e19"
+    ]
+  },
+  {
+    "id": "q28",
+    "question": "How can I insert a value into a sorted list keeping the order?",
+    "gold_document": "library/bisect.rst",
+    "gold_section": "bisect.insort_left(a, x, lo=0, hi=len(a), *, key=None)",
+    "relevant": [
+      "90027b1fd2d44062db218397"
+    ]
+  },
+  {
+    "id": "q29",
+    "question": "How do I create a weak reference to an object?",
+    "gold_document": "library/weakref.rst",
+    "gold_section": "class weakref.ref(object, [callback])",
+    "relevant": [
+      "92f36e41c8ad8948acf6ee1e"
+    ]
+  },
+  {
+    "id": "q30",
+    "question": "How can I print the traceback of an exception?",
+    "gold_document": "library/traceback.rst",
+    "gold_section": "traceback.print_exception(exc, /, [value, tb], limit=None, file=None, chain=True)",
+    "relevant": [
+      "6290d43b333ecbc138ab833e"
+    ]
+  },
+  {
+    "id": "q31",
+    "question": "How do I emit a warning",
+    "gold_document": "library/warnings.rst",
+    "gold_section": "warnings.warn(message, category=None, stacklevel=1, source=None, *, skip_file_prefixes=())",
+    "relevant": [
+      "15aac036c9d5c5e841c53663",
+      "2fcbdec3e62024a667873ae4"
+    ]
+  },
+  {
+    "id": "q32",
+    "question": "How do I define an abstract method?",
+    "gold_document": "library/abc.rst",
+    "gold_section": "@abc.abstractmethod",
+    "relevant": [
+      "82aaf2198f68657e32af6723"
+    ]
+  },
+  {
+    "id": "q33",
+    "question": "How do I create a named tuple with named fields?",
+    "gold_document": "library/collections.rst",
+    "gold_section": "collections.namedtuple(typename, field_names, *, rename=False, defaults=None, module=None)",
+    "relevant": [
+      "26055ab56de0ddc3402ed950",
+      "f681dcc5770cf89132a00270"
+    ]
+  }
+]

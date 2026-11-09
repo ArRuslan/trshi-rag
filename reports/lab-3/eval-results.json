@@ -1,0 +1,274 @@
+{
+  "questions": 33,
+  "missing_results": [],
+  "overall": {
+    "recall@5": 0.6121,
+    "recall@10": 0.7697
+  },
+  "per_question": [
+    {
+      "id": "q01",
+      "question": "How do I batch items from an iterable into fixed-size groups?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q02",
+      "question": "How do I set a default value in a dictionary when the key is missing?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q03",
+      "question": "How does functools.lru_cache cache function results?",
+      "relevant": 3,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q04",
+      "question": "How can I read a whole text file into a string with pathlib?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q05",
+      "question": "How can I run coroutines concurrently with asyncio?",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q06",
+      "question": "How do I serialize a Python object to a JSON string?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q07",
+      "question": "How do I compile a regular expression with case-insensitive matching?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q08",
+      "question": "How can I find the n largest elements of an iterable?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q09",
+      "question": "How do I count occurrences of elements in a list?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q10",
+      "question": "How do I create an immutable dataclass?",
+      "relevant": 5,
+      "retrieved": 10,
+      "recall@5": 0.2,
+      "recall@10": 0.4
+    },
+    {
+      "id": "q11",
+      "question": "What is a Protocol in the typing?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q12",
+      "question": "How do I mock a function in unit tests?",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q13",
+      "question": "How can I read CSV rows as dictionaries?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q14",
+      "question": "How do I configure logging to write to a file?",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q15",
+      "question": "How do I use a process pool for parallel work?",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.5,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q16",
+      "question": "How do I compute the SHA-256 hash of bytes?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q17",
+      "question": "How can I encode bytes to Base64?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q18",
+      "question": "How do I parse a date string into a datetime object?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q19",
+      "question": "How can I make random numbers reproducible?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q20",
+      "question": "How do I compute the median of a sequence of numbers?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q21",
+      "question": "How do I define an enumeration with integer values?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q22",
+      "question": "How can I temporarily ignore an exception?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q23",
+      "question": "How do I use an in-memory text stream?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q24",
+      "question": "How do I read a gzip-compressed file?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q25",
+      "question": "How can I list the files inside a zip archive?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q26",
+      "question": "How can I find files recursively with glob?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q27",
+      "question": "How do I pack values into a binary struct?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q28",
+      "question": "How can I insert a value into a sorted list keeping the order?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q29",
+      "question": "How do I create a weak reference to an object?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q30",
+      "question": "How can I print the traceback of an exception?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q31",
+      "question": "How do I emit a warning",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.0,
+      "recall@10": 0.0
+    },
+    {
+      "id": "q32",
+      "question": "How do I define an abstract method?",
+      "relevant": 1,
+      "retrieved": 10,
+      "recall@5": 1.0,
+      "recall@10": 1.0
+    },
+    {
+      "id": "q33",
+      "question": "How do I create a named tuple with named fields?",
+      "relevant": 2,
+      "retrieved": 10,
+      "recall@5": 0.5,
+      "recall@10": 1.0
+    }
+  ]
+}
