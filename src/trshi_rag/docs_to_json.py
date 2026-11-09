@@ -1,4 +1,7 @@
+import html
 import json
+import re
+import unicodedata
 from pathlib import Path
 from typing import Any, cast, TypedDict, Iterable, TypeVar
 
@@ -23,6 +26,24 @@ class RagPart(TypedDict):
     section: str
     symbol: RagPartSymbol | None
     text: str
+
+
+CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+SPACES = re.compile(r"[ \t]+")
+
+
+def normalize_utf8(text: str) -> str:
+    text = unicodedata.normalize("NFC", text)
+    return CONTROL_CHARS.sub("", text)
+
+
+def collapse_whitespace(text: str) -> str:
+    lines = [SPACES.sub(" ", line.strip()) for line in text.split("\n")]
+    return "\n".join(line for line in lines if line)
+
+
+def clean_text(text: str) -> str:
+    return collapse_whitespace(html.unescape(normalize_utf8(text)))
 
 
 T = TypeVar("T", bound=Node)
@@ -51,7 +72,7 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
     def visit_Text(self, node: docutils.nodes.Text) -> Any:
         if not self._in_content and not self._in_paragraph:
             return
-        self.parts[-1][1].append(node.replace("\n", " "))
+        self.parts[-1][1].append(str(node).replace("\n", " "))
 
     def visit_literal_block(self, node: docutils.nodes.literal_block) -> Any:
         if not self._in_content and not self._in_section:
@@ -233,7 +254,8 @@ class IdkVisitor(docutils.nodes.GenericNodeVisitor):
         part_info, text_parts = self.parts[-1]
         if part_info["text"]:
             return
-        part_info["text"] = " ".join(text_parts).replace("\x00", "")
+
+        part_info["text"] = clean_text(" ".join(text_parts))
         text_parts.clear()
 
     def default_departure(self, node: Node) -> None:
