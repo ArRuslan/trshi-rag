@@ -45,8 +45,9 @@ def main() -> None:
                     for num, doc in enumerate(results["documents"][0], start=1)
                 ),
                 "",
-                "If found documents have actual answer for user's questions - respond using the information from document, "
-                "otherwise - explicitly tell user that nothing was found.",
+                "If found documents have actual answer (information/function/class/method/etc.) "
+                "for user's questions - respond using the information from document, "
+                "otherwise - explicitly tell user that nothing was found and DO NOT give any other answers, alternatives, files or examples.",
                 "Answer MUST contain source file and section."
                 "DO NOT just recite whole document."
                 "Keep answer short, concise and understandable for user."
