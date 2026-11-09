@@ -8,7 +8,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Literal, TypedDict
 
-from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer
 
 from trshi_rag.docs_to_json import RagPart, RagPartSymbol
 
@@ -56,8 +56,7 @@ class ArgumentsNamespace(argparse.Namespace):
 
 class TokenCounter:
     def __init__(self, model_name_or_path: str) -> None:
-        self.model = SentenceTransformer(model_name_or_path)
-        self.tokenizer = self.model.tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 
     def count(self, text: str) -> int:
         ids = self.tokenizer.encode(text, add_special_tokens=False)
