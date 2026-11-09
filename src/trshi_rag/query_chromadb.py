@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import argparse
 from typing import cast
 
 from chromadb import PersistentClient
@@ -6,17 +9,23 @@ from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunct
 
 
 def main() -> None:
-    with cast(Client, PersistentClient("data/chromadb")) as client:
-        embed_fn = SentenceTransformerEmbeddingFunction(model_name="google/embeddinggemma-300m", device="cuda")
-        collection = client.get_collection("docs", embedding_function=embed_fn)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-q", "--query", type=str, required=True)
+    parser.add_argument("-k", "--n-results", type=int, default=5)
+    parser.add_argument("--db", type=str, default="data/chromadb")
+    parser.add_argument("--collection", type=str, default="docs")
+    parser.add_argument("--model", type=str, default="google/embeddinggemma-300m")
+    parser.add_argument("--device", type=str, default="cpu")
+    ns = parser.parse_args()
 
-        results = collection.query(
-            query_texts=["In which python version was itertools.batched function added?"],
-            n_results=2,
-        )
+    with cast(Client, PersistentClient(ns.db)) as client:
+        embed_fn = SentenceTransformerEmbeddingFunction(model_name=ns.model, device=ns.device)
+        collection = client.get_collection(ns.collection, embedding_function=embed_fn)
 
-        for doc, dist in zip(results["documents"][0], results["distances"][0]):
-            print(f"[{dist:.3f}] {doc}")
+        results = collection.query(query_texts=[ns.query], n_results=ns.n_results)
+
+    for idx, dist, meta in zip(results["ids"][0], results["distances"][0], results["metadatas"][0]):
+        print(f"{idx}  dist={dist:.4f}  {meta['document']} | {meta['section']}")
 
 
 if __name__ == "__main__":

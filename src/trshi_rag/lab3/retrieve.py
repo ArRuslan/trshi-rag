@@ -22,6 +22,7 @@ def main() -> None:
     parser.add_argument("--collection", type=str, default="docs")
     parser.add_argument("--model", type=str, default="google/embeddinggemma-300m")
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--query-prefix", type=str, default="")
     args = parser.parse_args()
 
     questions = json.loads(args.questions.read_text(encoding="utf-8"))
@@ -32,7 +33,7 @@ def main() -> None:
         collection = client.get_collection(args.collection, embedding_function=embed_fn)
 
         results = collection.query(
-            query_texts=[q["question"] for q in questions],
+            query_texts=[args.query_prefix + q["question"] for q in questions],
             n_results=min(args.n_results, collection.count()),
         )
 
