@@ -297,7 +297,7 @@ def process_file(counter: TokenCounter, path_in: Path, path_out: Path, soft: int
         json.dump(out_parts, f, indent=2)
 
 
-def main(argv=None) -> None:
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path)
     parser.add_argument("-o", "--out", type=Path, required=True)
@@ -305,21 +305,21 @@ def main(argv=None) -> None:
     parser.add_argument("--soft", type=int, default=SOFT_LIMIT)
     parser.add_argument("--hard", type=int, default=HARD_LIMIT)
     parser.add_argument("--overlap", type=float, default=OVERLAP_RATIO)
-    ns = parser.parse_args(argv, namespace=ArgumentsNamespace())
+    args = parser.parse_args(namespace=ArgumentsNamespace())
 
-    if ns.soft >= ns.hard:
-        sys.exit(f"soft ({ns.soft}) must be < hard ({ns.hard})")
-    if not 0 <= ns.overlap < 0.5:
+    if args.soft >= args.hard:
+        sys.exit(f"soft ({args.soft}) must be < hard ({args.hard})")
+    if not 0 <= args.overlap < 0.5:
         sys.exit("--overlap must be in [0, 0.5)")
 
-    counter = TokenCounter(ns.model)
-    inputs = sorted(ns.input.glob("*.json"))
+    counter = TokenCounter(args.model)
+    inputs = sorted(args.input.glob("*.json"))
     if not inputs:
-        sys.exit(f"no input files found: {ns.input}")
+        sys.exit(f"no input files found: {args.input}")
 
     for f in inputs:
-        target = (ns.out / f.name) if ns.out.suffix == "" else ns.out
-        process_file(counter, f, target, ns.soft, ns.hard, ns.overlap)
+        target = (args.out / f.name) if args.out.suffix == "" else args.out
+        process_file(counter, f, target, args.soft, args.hard, args.overlap)
 
 
 if __name__ == "__main__":
