@@ -15,13 +15,13 @@ STOPWORDS = {
 }
 
 
-def main(argv=None) -> None:
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path)
     parser.add_argument("-o", "--out", type=Path, required=True)
-    ns = parser.parse_args(argv)
+    args = parser.parse_args()
 
-    rows = [json.loads(line) for line in open(ns.input, encoding="utf-8")]
+    rows = [json.loads(line) for line in open(args.input, encoding="utf-8") if line]
 
     documents = collections.Counter(r["document"] for r in rows)
     words = [len(r["text"].split()) for r in rows]
@@ -33,27 +33,27 @@ def main(argv=None) -> None:
     no_stopwords = {w: c for w, c in counter.items() if w not in STOPWORDS}
     top20_content = collections.Counter(no_stopwords).most_common(20)
 
-    def pct(values: list[int], p: float) -> int:
+    def med(values: list[int], p: float) -> int:
         ordered = sorted(values)
         return ordered[int(p / 100 * (len(ordered) - 1))]
 
     stats: dict = {
-        "file": str(ns.input),
+        "file": str(args.input),
         "documents": len(documents),
         "chunks": len(rows),
         "chars_total": sum(chars),
         "chunk_size": {
-            "chars": {"min": min(chars), "median": pct(chars, 50), "mean": round(sum(chars) / len(chars), 1), "max": max(chars)},
-            "words": {"min": min(words), "median": pct(words, 50), "mean": round(sum(words) / len(words), 1), "max": max(words)},
-            "tokens": {"min": min(tokens), "median": pct(tokens, 50), "mean": round(sum(tokens) / len(tokens), 1), "max": max(tokens)} if tokens else None,
+            "chars": {"min": min(chars), "median": med(chars, 50), "mean": round(sum(chars) / len(chars), 1), "max": max(chars)},
+            "words": {"min": min(words), "median": med(words, 50), "mean": round(sum(words) / len(words), 1), "max": max(words)},
+            "tokens": {"min": min(tokens), "median": med(tokens, 50), "mean": round(sum(tokens) / len(tokens), 1), "max": max(tokens)} if tokens else None,
         },
         "top20_words": top20,
         "top20_words_no_stopwords": top20_content,
         "distinct_word_tokens": len(counter),
     }
 
-    ns.out.parent.mkdir(parents=True, exist_ok=True)
-    ns.out.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(stats, ensure_ascii=False, indent=2))
 
 
